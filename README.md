@@ -2,7 +2,7 @@
 
 Help you to find the commands that you remember ambiguously.
 
-![bowme.png](./docs/bowme.png)
+<img src="https://github.com/chakki-works/bowme/raw/master/docs/bowme.png" width="100">
 
 *photo by [DaPuglet](https://flic.kr/p/Q2rT5L)*
 
