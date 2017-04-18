@@ -13,12 +13,14 @@ import (
 	"github.com/urfave/cli"
 )
 
+//Gist Structure
 type Gist struct {
 	URL   string                 `json:"url"`
 	ID    string                 `json:"id"`
 	Files map[string]ContentFile `json:"files"`
 }
 
+//ContentFile Structure in the Gist
 type ContentFile struct {
 	FileName string `json:"filename"`
 	Type     string `json:"type"`
@@ -26,13 +28,13 @@ type ContentFile struct {
 }
 
 func getCandidates() map[string]string {
-	gistID := os.Getenv("ARE_GIST_ID")
+	gistID := os.Getenv("BOWME_GIST_ID")
 	if gistID == "" {
 		gistID = "55cddaa1b0c35c26cac0bace2f2b6940"
 	}
 	resp, err := http.Get("https://api.github.com/gists/" + gistID)
 	if err != nil {
-		fmt.Println("Can not access to the gist. Please check ARE_GIST_ID environmental variable or network connection.")
+		fmt.Println("Can not access to the gist. Please check BOWME_GIST_ID environmental variable or network connection.")
 		return nil
 	}
 	defer resp.Body.Close()
@@ -44,7 +46,7 @@ func getCandidates() map[string]string {
 	}
 
 	candidates := map[string]string{}
-	reader := csv.NewReader(strings.NewReader(gist.Files["are.csv"].Content))
+	reader := csv.NewReader(strings.NewReader(gist.Files["bowme.csv"].Content))
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -75,16 +77,16 @@ func find(keyword string, candidates map[string]string) map[string]string {
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "are"
-	app.Usage = "type what you want to remember."
+	app.Name = "bowme"
+	app.Usage = "Help you to find the commands that you remember ambiguously."
 	app.Action = func(c *cli.Context) error {
 		if c.NArg() == 0 {
 			fmt.Println("Please input what you want to remember!")
 			return nil
 		}
-		are := c.Args().Get(0)
+		keyword := c.Args().Get(0)
 		candidates := getCandidates()
-		matched := find(are, candidates)
+		matched := find(keyword, candidates)
 		for k, m := range matched {
 			fmt.Printf("\x1b[34m%s\x1b[0m\n", k)
 			fmt.Printf("  %s\n", m)
