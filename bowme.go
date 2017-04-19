@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/urfave/cli"
@@ -102,7 +103,11 @@ func main() {
 		candidates := getCandidates()
 		matched := find(keyword, candidates)
 		for k, m := range matched {
-			fmt.Printf("\x1b[34m%s\x1b[0m\n", k)
+			if runtime.GOOS == "windows" {
+				fmt.Printf("[%s]", k)
+			} else {
+				fmt.Printf("\x1b[34m%s\x1b[0m\n", k)
+			}
 			fmt.Printf("  %s\n", m)
 		}
 		return nil
