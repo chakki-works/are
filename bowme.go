@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"os/user"
 	"regexp"
 	"strings"
 
@@ -28,25 +30,37 @@ type ContentFile struct {
 }
 
 func getCandidates() map[string]string {
-	gistID := os.Getenv("BOWME_GIST_ID")
-	if gistID == "" {
-		gistID = "55cddaa1b0c35c26cac0bace2f2b6940"
-	}
-	resp, err := http.Get("https://api.github.com/gists/" + gistID)
+	const bowmeFile = ".bowme"
+	usr, err := user.Current()
 	if err != nil {
-		fmt.Println("Can not access to the gist. Please check BOWME_GIST_ID environmental variable or network connection.")
+		fmt.Println("Can not get user directory")
 		return nil
 	}
-	defer resp.Body.Close()
-	gist := new(Gist)
-	decodeErr := json.NewDecoder(resp.Body).Decode(gist)
-	if decodeErr != nil {
-		fmt.Println("Can not decode the gist response.", decodeErr)
-		return nil
+	path := usr.HomeDir + "/" + bowmeFile
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		// get default csv from publi gist
+		resp, err := http.Get("https://api.github.com/gists/55cddaa1b0c35c26cac0bace2f2b6940")
+		if err != nil {
+			fmt.Println("Can not get .bowme file for default setting.")
+			return nil
+		}
+
+		defer resp.Body.Close()
+		gist := new(Gist)
+		decodeErr := json.NewDecoder(resp.Body).Decode(gist)
+		if decodeErr != nil {
+			fmt.Println("Can not decode the gist response.", decodeErr)
+			return nil
+		}
+		ioutil.WriteFile(path, []byte(gist.Files["bowme.csv"].Content), 0644)
 	}
 
+	csvfile, err := os.Open(path)
+	defer csvfile.Close()
+	reader := csv.NewReader(csvfile)
+
 	candidates := map[string]string{}
-	reader := csv.NewReader(strings.NewReader(gist.Files["bowme.csv"].Content))
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {

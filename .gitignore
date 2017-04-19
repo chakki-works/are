@@ -14,3 +14,4 @@ naries for programs and plugins
 .glide/
 
 .DS_Store
+!bowme.exe
