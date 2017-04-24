@@ -16,10 +16,11 @@ bowme "your ambiguous words"
 
 
 The default index is get from [bowme.csv](https://gist.github.com/icoxfog417/55cddaa1b0c35c26cac0bace2f2b6940) on public gist.
+This file is stored into user home directory `$HOME/.bowme`.  
+If you want to add/modify it, please edit the `$HOME/.bowme`.
 
-This file is stored into user home directory `$HOME/.bowme.csv`. 
-If you want to add/modify it, please edit the `$HOME/.bowme.csv`.
-
+* `bowme -r`: If you want to load the another Gist, please use `bowme -r your_gist_url`
+* `bowme -i`: If you want to add new command, you can use `bowme -i "how to build go" go build`
 
 ## Install
 
